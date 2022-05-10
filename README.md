@@ -133,6 +133,8 @@ function animate() {
 
 #### 移动
 
+在constructor中加上this.lastKey
+
 所以思路采用直接给player或者enemy的velocity.x赋1或者-1，同时通过TorF来判断键盘的键是否按下，只有按下为T时才会进行赋值操作
 
 ```javascript
@@ -150,7 +152,6 @@ const keys = {
         pressed: false
     }
 }
-let lastKey;
 
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
@@ -164,6 +165,12 @@ window.addEventListener('keydown', (e) => {
             break
     }            
 ```
+
+**关于this.lastKey**
+
+this.lastKey目的是为了防止两键同时按下时左右移动冲突的情况，因为a.pressed和d.pressed同时满足，所以人物会原地左右抽搐。
+
+
 
 #### 跳跃
 
@@ -206,6 +213,99 @@ function animate() {
     } else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') {
         enemy.velocity.x = 1;
     }
+}
+```
+
+## 攻击
+
+基本思路为通过canvas画出双方的hitbox，通过hitbox的重叠(碰撞判定)来判断是否击中对方。
+
+### hitbox
+
+#### constructor和class
+
+isAttacking判断是否攻击
+
+```javascript
+this.isAttacking;
+```
+
+position为hitbox的作画起始位置 offset为控制hitbox的朝向
+
+```javascript
+this.attackBox = {
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            offset,
+            width: 100,
+            height: 50
+        }
+```
+
+**画出hitbox**
+
+在draw()中加上
+
+```javascript
+if (this.isAttacking) {
+            ctx.fillStyle = 'green';
+            ctx.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+        }
+```
+
+**朝向**
+
+在new enemy时给offset赋负值从而改变hitbox的方向，通过update来实时刷新
+
+```javascript
+this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
+```
+
+#### 攻击
+
+attack()方法
+
+setTimeout模拟攻击后马上收回的动作，isAttacking为F时draw()方法不会画出hitbox
+
+```javascript
+attack() {
+        this.isAttacking = true;
+        setTimeout(() => {
+            this.isAttacking = false;
+        }, 100)
+    }
+```
+
+对应事件
+
+```javascript
+case ' ':
+            player.attack();
+            break
+```
+
+#### 接触判定
+
+我们假设这里rec1是player，rec2是enemy
+
+判定分为：
+
+1.hitbox横向接触到enemy
+
+2.玩家的hitbox没有到敌方背后
+
+判定3和4不太好讲，看图吧 
+
+![无标题](C:\Users\ZeroX\Desktop\无标题.jpg)
+
+
+
+```javascript
+function hitboxCollision(rectangle1, rectangle2) {
+    return (rectangle1.attackBox.position.x + rectangle1.attackBox.width >= rectangle2.position.x && rectangle1.attackBox.position.x <= rectangle2.position.x + rectangle2.width && rectangle1.attackBox.position.y + rectangle1.attackBox.height >= rectangle2.position.y && rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height && rectangle1.isAttacking)
+
 }
 ```
 

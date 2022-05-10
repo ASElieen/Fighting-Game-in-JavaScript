@@ -12,20 +12,41 @@ const gravity = 0.2;
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 class Sprite {
-    constructor({ position, velocity }) {
+    constructor({ position, velocity, color = 'red', offset }) {
         this.position = position;
         //速度v
         this.velocity = velocity;
         this.height = 150;
+        this.width = 50;
+        this.lastKey;
+        this.attackBox = {
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            offset,
+            width: 100,
+            height: 50
+        }
+        this.color = color;
+        this.isAttacking;
     }
 
     draw() {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(this.position.x, this.position.y, 50, this.height);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+
+        //画出hitbox
+        if (this.isAttacking) {
+            ctx.fillStyle = 'green';
+            ctx.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+        }
     }
 
     update() {
         this.draw();
+        this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
+        this.attackBox.position.y = this.position.y;
         // this.velocity.y += gravity;
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
@@ -35,6 +56,13 @@ class Sprite {
             this.velocity.y += gravity;
         }
     }
+
+    attack() {
+        this.isAttacking = true;
+        setTimeout(() => {
+            this.isAttacking = false;
+        }, 100)
+    }
 }
 
 const player = new Sprite({
@@ -43,6 +71,10 @@ const player = new Sprite({
         y: 0
     },
     velocity: {
+        x: 0,
+        y: 0
+    },
+    offset: {
         x: 0,
         y: 0
     }
@@ -56,6 +88,11 @@ const enemy = new Sprite({
     },
     velocity: {
         x: 0,
+        y: 0
+    },
+    color: 'blue',
+    offset: {
+        x: -50,
         y: 0
     }
 })
@@ -74,7 +111,12 @@ const keys = {
         pressed: false
     }
 }
-let lastKey;
+
+//此时rec1 玩家 rec2敌方
+function hitboxCollision(rectangle1, rectangle2) {
+    return (rectangle1.attackBox.position.x + rectangle1.attackBox.width >= rectangle2.position.x && rectangle1.attackBox.position.x <= rectangle2.position.x + rectangle2.width && rectangle1.attackBox.position.y + rectangle1.attackBox.height >= rectangle2.position.y && rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height && rectangle1.isAttacking)
+
+}
 
 
 function animate() {
@@ -99,6 +141,13 @@ function animate() {
     } else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') {
         enemy.velocity.x = 1;
     }
+
+    //hitbox接触判定
+    // if (player.attackBox.position.x + player.attackBox.width >= enemy.position.x && player.attackBox.position.x <= enemy.position.x + enemy.width && player.attackBox.position.y + player.attackBox.height >= enemy.position.y && player.attackBox.position.y <= enemy.position.y + enemy.height && player.isAttacking) {
+    //     player.isAttacking = false;
+    // }
+    if (hitboxCollision(player, enemy)) player.isAttacking = false;
+    if (hitboxCollision(enemy, player)) enemy.isAttacking = false;
 }
 
 animate();
@@ -120,6 +169,9 @@ window.addEventListener('keydown', (e) => {
             if (player.position.y + player.height < canvas.height) return
             player.velocity.y = -10;
             break
+        case ' ':
+            player.attack();
+            break
     }
 
     //敌方
@@ -139,6 +191,9 @@ window.addEventListener('keydown', (e) => {
             if (enemy.position.y + enemy.height < canvas.height) return
             enemy.velocity.y = -10;
             break
+        case ('ArrowDown'):
+            enemy.attack();
+            break
 
     }
 })
@@ -146,20 +201,20 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'd':
-            keys.d.pressed = false
+            keys.d.pressed = false;
             break
         case 'a':
-            keys.a.pressed = false
+            keys.a.pressed = false;
             break
     }
 
     //敌方
     switch (e.key) {
         case 'ArrowRight':
-            keys.ArrowRight.pressed = false
+            keys.ArrowRight.pressed = false;
             break
         case 'ArrowLeft':
-            keys.ArrowLeft.pressed = false
+            keys.ArrowLeft.pressed = false;
             break
     }
 })
