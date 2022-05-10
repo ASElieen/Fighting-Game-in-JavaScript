@@ -298,13 +298,17 @@ case ' ':
 
 判定3和4不太好讲，看图吧 
 
-![无标题](C:\Users\ZeroX\Desktop\无标题.jpg)
+![无标题](https://user-images.githubusercontent.com/93816228/167596127-dcc852a0-0188-4e58-b6ff-56e1fea9adda.jpg)
 
 
 
 ```javascript
 function hitboxCollision(rectangle1, rectangle2) {
-    return (rectangle1.attackBox.position.x + rectangle1.attackBox.width >= rectangle2.position.x && rectangle1.attackBox.position.x <= rectangle2.position.x + rectangle2.width && rectangle1.attackBox.position.y + rectangle1.attackBox.height >= rectangle2.position.y && rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height && rectangle1.isAttacking)
+    return (rectangle1.attackBox.position.x + rectangle1.attackBox.width >= rectangle2.position.x 
+    && rectangle1.attackBox.position.x <= rectangle2.position.x + rectangle2.width 
+    && rectangle1.attackBox.position.y + rectangle1.attackBox.height >= rectangle2.position.y 
+    && rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height 
+    && rectangle1.isAttacking)
 
 }
 ```
