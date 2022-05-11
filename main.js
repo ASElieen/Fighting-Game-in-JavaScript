@@ -1,71 +1,34 @@
-const $ = (ele) => {
-    return document.querySelector(ele);
-}
-
 const canvas = $('canvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 1024;
 canvas.height = 576;
 
 const gravity = 0.2;
+const time = 100;
+setTimer(time)
 
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-class Sprite {
-    constructor({ position, velocity, color = 'red', offset }) {
-        this.position = position;
-        //速度v
-        this.velocity = velocity;
-        this.height = 150;
-        this.width = 50;
-        this.lastKey;
-        this.attackBox = {
-            position: {
-                x: this.position.x,
-                y: this.position.y
-            },
-            offset,
-            width: 100,
-            height: 50
-        }
-        this.color = color;
-        this.isAttacking;
-    }
+const background = new Sprite({
+    position: {
+        x: 0,
+        y: 0
+    },
+    imgSrc: 'img/background.png'
+})
 
-    draw() {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+const shop = new Sprite({
+    position: {
+        x: 650,
+        y: 225
+    },
+    scale: 2,
+    imgSrc: 'img/shop.png',
+    frameMax: 6,
+    frameGap: 10
+})
 
-        //画出hitbox
-        if (this.isAttacking) {
-            ctx.fillStyle = 'green';
-            ctx.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
-        }
-    }
-
-    update() {
-        this.draw();
-        this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
-        this.attackBox.position.y = this.position.y;
-        // this.velocity.y += gravity;
-        this.position.x += this.velocity.x;
-        this.position.y += this.velocity.y;
-        if (this.position.y + this.height + this.velocity.y >= canvas.height) {
-            this.velocity.y = 0;
-        } else {
-            this.velocity.y += gravity;
-        }
-    }
-
-    attack() {
-        this.isAttacking = true;
-        setTimeout(() => {
-            this.isAttacking = false;
-        }, 100)
-    }
-}
-
-const player = new Sprite({
+const player = new Fighter({
     position: {
         x: 0,
         y: 0
@@ -77,11 +40,56 @@ const player = new Sprite({
     offset: {
         x: 0,
         y: 0
+    },
+    imgSrc: './img/samuraiMack/Idle.png',
+    frameMax: 8,
+    frameGap: 10,
+    scale: 2.5,
+    offset: {
+        x: 215,
+        y: 157
+    },
+    sprites: {
+        idle: {
+            imgSrc: './img/samuraiMack/Idle.png',
+            frameMax: 8
+        },
+        run: {
+            imgSrc: './img/samuraiMack/Run.png',
+            frameMax: 8
+        },
+        jump: {
+            imgSrc: './img/samuraiMack/Jump.png',
+            frameMax: 2
+        },
+        fall: {
+            imgSrc: './img/samuraiMack/Fall.png',
+            frameMax: 2
+        },
+        attack1: {
+            imgSrc: './img/samuraiMack/Attack1.png',
+            frameMax: 6
+        },
+        takeHit: {
+            imgSrc: './img/samuraiMack/Take Hit - white silhouette.png',
+            frameMax: 4
+        },
+        death: {
+            imgSrc: './img/samuraiMack/Death.png',
+            frameMax: 6
+        }
+    },
+    attackBox: {
+        offset: {
+            x: 100,
+            y: 50
+        },
+        width: 160,
+        height: 50
     }
 })
 
-
-const enemy = new Sprite({
+const enemy = new Fighter({
     position: {
         x: 400,
         y: 100
@@ -94,8 +102,55 @@ const enemy = new Sprite({
     offset: {
         x: -50,
         y: 0
+    },
+    imgSrc: './img/kenji/Idle.png',
+    frameGap: 10,
+    frameMax: 4,
+    scale: 2.5,
+    offset: {
+        x: 215,
+        y: 167
+    },
+    sprites: {
+        idle: {
+            imgSrc: './img/kenji/Idle.png',
+            frameMax: 4
+        },
+        run: {
+            imgSrc: './img/kenji/Run.png',
+            frameMax: 8
+        },
+        jump: {
+            imgSrc: './img/kenji/Jump.png',
+            frameMax: 2
+        },
+        fall: {
+            imgSrc: './img/kenji/Fall.png',
+            frameMax: 2
+        },
+        attack1: {
+            imgSrc: './img/kenji/Attack1.png',
+            frameMax: 4
+        },
+        takeHit: {
+            imgSrc: './img/kenji/Take hit.png',
+            frameMax: 3
+        },
+        death: {
+            imgSrc: './img/kenji/Death.png',
+            frameMax: 7
+        }
+    },
+    attackBox: {
+        offset: {
+            x: -170,
+            y: 50
+        },
+        width: 170,
+        height: 50
     }
 })
+
 
 const keys = {
     a: {
@@ -118,36 +173,87 @@ function hitboxCollision(rectangle1, rectangle2) {
 
 }
 
+// function jumpTest(role) {
+//     if (role.velocity.y < 0 && role.image !== role.sprites.jump.image) {
+//         role.image = role.sprites.jump.image;
+//         role.frameMax = role.sprites.jump.frameMax;
+//         role.frameCurrent = 0;
+//     } else {
+//         role.image = role.sprites.idle.image;
+//         role.frameMax = role.sprites.idle.frameMax;
+//         role.frameCurrent = 0;
+//     }
+// }
+
 
 function animate() {
     window.requestAnimationFrame(animate);
     ctx.fillStyle = 'black'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
+    background.update();
+    shop.update();
     player.update();
     enemy.update();
 
     player.velocity.x = 0;
     enemy.velocity.x = 0;
-    //玩家左右移动
+    //玩家左右移动 没按键时默认为站立
     if (keys.a.pressed && player.lastKey === 'a') {
-        player.velocity.x = -1;
+        player.velocity.x = -5;
+        player.switchSprite('run');
     } else if (keys.d.pressed && player.lastKey === 'd') {
-        player.velocity.x = 1;
+        player.velocity.x = 5;
+        player.switchSprite('run');
+    } else {
+        player.switchSprite('idle');
+    }
+
+    //玩家跳跃和下落
+    if (player.velocity.y < 0) {
+        player.switchSprite('jump')
+    } else if (player.velocity.y > 0) {
+        player.switchSprite('fall')
     }
 
     //敌方左右移动
     if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft') {
-        enemy.velocity.x = -1;
+        enemy.velocity.x = -5;
+        enemy.switchSprite('run');
     } else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight') {
-        enemy.velocity.x = 1;
+        enemy.velocity.x = 5;
+        enemy.switchSprite('run');
+    } else {
+        enemy.switchSprite('idle');
     }
 
-    //hitbox接触判定
-    // if (player.attackBox.position.x + player.attackBox.width >= enemy.position.x && player.attackBox.position.x <= enemy.position.x + enemy.width && player.attackBox.position.y + player.attackBox.height >= enemy.position.y && player.attackBox.position.y <= enemy.position.y + enemy.height && player.isAttacking) {
-    //     player.isAttacking = false;
-    // }
-    if (hitboxCollision(player, enemy)) player.isAttacking = false;
-    if (hitboxCollision(enemy, player)) enemy.isAttacking = false;
+    //敌方跳跃
+    if (enemy.velocity.y < 0) {
+        enemy.switchSprite('jump')
+    } else if (enemy.velocity.y > 0) {
+        enemy.switchSprite('fall')
+    }
+
+    //敌我击中判定
+    if (hitboxCollision(player, enemy) && player.isAttacking && player.frameCurrent == 4) {
+        enemy.takeHit();
+        player.isAttacking = false;
+        watchDamage(player);
+    }
+    if (hitboxCollision(enemy, player) && enemy.isAttacking && enemy.frameCurrent == 2) {
+        player.takeHit();
+        enemy.isAttacking = false;
+        watchDamage(enemy);
+    }
+
+    //双方miss的情况
+    if (player.isAttacking && player.frameCurrent === 4) {
+        player.isAttacking = false
+    }
+
+    if (enemy.isAttacking && enemy.frameCurrent === 2) {
+        enemy.isAttacking = false
+    }
+
 }
 
 animate();
@@ -166,10 +272,11 @@ window.addEventListener('keydown', (e) => {
             break
         case 'w':
             //防二段跳
-            if (player.position.y + player.height < canvas.height) return
+            if (player.position.y + player.height < canvas.height - 96) return
             player.velocity.y = -10;
             break
         case ' ':
+            e.preventDefault();
             player.attack();
             break
     }
@@ -188,10 +295,11 @@ window.addEventListener('keydown', (e) => {
             break
         case 'ArrowUp':
             e.preventDefault();
-            if (enemy.position.y + enemy.height < canvas.height) return
+            if (enemy.position.y + enemy.height < canvas.height - 96) return
             enemy.velocity.y = -10;
             break
         case ('ArrowDown'):
+            e.preventDefault();
             enemy.attack();
             break
 
@@ -202,9 +310,11 @@ window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'd':
             keys.d.pressed = false;
+            player.image = player.sprites.idle.image
             break
         case 'a':
             keys.a.pressed = false;
+            player.image = player.sprites.idle.image
             break
     }
 
@@ -212,9 +322,16 @@ window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'ArrowRight':
             keys.ArrowRight.pressed = false;
+            enemy.image = enemy.sprites.idle.image;
+            enemy.frameMax = enemy.sprites.idle.frameMax;
+            // enemy.image = enemy.sprites.idle.image;
+            // enemy.frameMax = enemy.sprites.idle.frameMax;
             break
         case 'ArrowLeft':
             keys.ArrowLeft.pressed = false;
+            enemy.image = enemy.sprites.idle.image;
+            // enemy.image = enemy.sprites.idle.image;
+            enemy.frameMax = enemy.sprites.idle.frameMax;
             break
     }
 })

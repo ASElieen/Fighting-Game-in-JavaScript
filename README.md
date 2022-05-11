@@ -2,7 +2,7 @@
 
 # 格斗游戏
 
-## 背景
+## 画布背景
 
 canvas画一个
 
@@ -313,3 +313,195 @@ function hitboxCollision(rectangle1, rectangle2) {
 }
 ```
 
+## 填充背景图片
+
+ctx.drawImage()
+
+此时的Sprite构造函数，只保留了最基础的功能。原来的Sprite类复制了一份改成Class Fighter了，后面再说，现在的Sprite类只用来处理图片素材
+
+```javascript
+class Sprite {
+    constructor({ position, imgSrc }) {
+        this.position = position;
+        this.height = 150;
+        this.width = 50;
+        this.image = new Image();
+        this.image.src = imgSrc;
+    }
+    draw(){
+       ctx.drawImage(......) 
+    }
+    update(){
+           this.draw()
+       }
+}
+```
+
+
+
+## 商店烟囱动画
+
+#### 大小和位置
+
+![image-20220511110912619](C:\Users\ZeroX\Desktop\image-20220511110912619.png)
+
+可以看到 素材图片是由6帧（暂时就叫帧吧）组成，那么构成动画的思路很明显
+
+![image-20220511111122632](C:\Users\ZeroX\AppData\Roaming\Typora\typora-user-images\image-20220511111122632.png)
+
+把图片分成六块 每隔一定的时间往前挪一块，挪到末尾后回到开头
+
+**补充一下（实际PNG素材上没有周围的黑边）**
+
+先引入整个商店素材
+
+```
+draw() {
+        ctx.drawImage(this.image,
+            0,
+            0,
+            this.image.width,
+            this.image.height,
+            this.position.x,
+            this.position.y,
+            this.image.width,
+            this.image.height
+    }
+```
+
+素材需要缩放，在构造函数中补个scale
+
+```javascript
+constructor({ position, imgSrc, scale = 1 }) {
+        this.position = position;
+        this.height = 150;
+        this.width = 50;
+        this.image = new Image();
+        this.image.src = imgSrc;
+        this.scale = scale;
+    }
+```
+
+那么draw就变成
+
+```javascript
+draw() {
+        ctx.drawImage(this.image,
+            0,
+            0,
+            this.image.width,
+            this.image.height,
+            this.position.x,
+            this.position.y,
+            (this.image.width) * this.scale,
+            this.image.height * this.scale)
+    }
+```
+
+通过设置scale 我们可以选出一个合适的单个商店大小，在new出shop实例的时候修改positionx和positiony指定位置即可
+
+#### 六等分和动画
+
+![image-20220511114338516](C:\Users\ZeroX\AppData\Roaming\Typora\typora-user-images\image-20220511114338516.png)
+
+这是w3c上的drawImage参数，那么实现六等分的核心就在于sx和swidth这两个参数。
+
+所以思路为通过两个参数，一个为等分数量，一个为当前位置来控制sx和swidth。但是考虑到背景是不需要等分的，因此
+
+```javascript
+constructor({ position, imgSrc, scale = 1, frameMax = 1 }) {
+        this.position = position;
+        this.height = 150;
+        this.width = 50;
+        this.image = new Image();
+        this.image.src = imgSrc;
+        this.scale = scale;
+        this.frameMax = frameMax;
+        this.frameCurrent = 0;
+    }
+```
+
+frameMax为等分的数量，默认值为1，我们new background实例的时候不做修改，背景自然就不会被等分。frameCurrent为当前的位置，默认为0，我们通过修改frameCurrent的值来改变drawImage中的sx，就可以实现素材切割和烟囱的动画。
+
+
+
+修改后的draw方法，起始点为（0,0），每次增加六分之一的图片宽度，每次切出六分之一的图片宽度
+
+```javascript
+draw() {
+        ctx.drawImage(this.image,
+            this.frameCurrent * (this.image.width / this.frameMax),
+            0,
+            this.image.width / this.frameMax,
+            this.image.height,
+            this.position.x,
+            this.position.y,
+            (this.image.width / this.frameMax) * this.scale,
+            this.image.height * this.scale)
+    }
+```
+
+实现了六等分，接下来我们来完成动画。
+
+```javascript
+function animate(){
+window.requestAnimationFrame(animate)
+background.update();
+    shop.update();
+}
+```
+
+这是animate中的一小部分，可以看到每次回调animate时，都会触发update()方法。所以每次触发update()时更新某一个常数值(i++)，即可实现六个部分中每部分的切换。
+
+
+
+**构造函数最终版**
+
+```javascript
+constructor({ position, imgSrc, scale = 1, frameMax = 1, frameGap = 1 }) {
+        this.position = position;
+        this.height = 150;
+        this.width = 50;
+        this.image = new Image();
+        this.image.src = imgSrc;
+        this.scale = scale;
+        this.frameMax = frameMax;
+        this.frameCurrent = 0;
+        this.frameTime = 0;
+        this.frameGap = frameGap;
+    }
+```
+
+frameGap为更新间隔，frameTime就是上面所说的常数
+
+
+
+此时的update()
+
+frameCurrent+1是为了防止背景一直刷新
+
+```javascript
+update() {
+        this.draw();
+        this.frameTime++;
+        if (this.frameTime % this.frameGap == 0) {
+            if (this.frameCurrent + 1 < this.frameMax) {
+                this.frameCurrent++;
+            } else {
+                this.frameCurrent = 0;
+            }
+```
+
+## 人物
+
+### 人物站立动画
+
+在之前绘制的canvas基础上引入png
+
+
+
+### 人物移动动画
+
+### 人物跳跃动画
+
+### 人物攻击动画
