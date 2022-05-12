@@ -61,15 +61,15 @@ class Fighter extends Sprite {
         this.height = 150;
         this.width = 50;
         this.lastKey;
-        this.attackBox = {
-            position: {
-                x: this.position.x,
-                y: this.position.y
-            },
-            offset,
-            width: 100,
-            height: 50
-        }
+        // this.attackBox = {
+        //     position: {
+        //         x: this.position.x,
+        //         y: this.position.y
+        //     },
+        //     offset,
+        //     width: 100,
+        //     height: 50
+        // }
         this.color = color;
         this.isAttacking;
         this.hp = 100;
@@ -127,14 +127,15 @@ class Fighter extends Sprite {
     }
 
     takeHit() {
-        this.health -= 20
+        this.hp -= 10
 
-        if (this.health <= 0) {
+        if (this.hp <= 0) {
             this.switchSprite('death')
         } else this.switchSprite('takeHit')
     }
 
     switchSprite(sprite) {
+        //死亡判定
         if (this.image === this.sprites.death.image) {
             if (this.frameCurrent === this.sprites.death.frameMax - 1)
                 this.dead = true
@@ -154,6 +155,7 @@ class Fighter extends Sprite {
             this.frameCurrent < this.sprites.takeHit.frameMax - 1
         )
             return
+
 
         switch (sprite) {
             case 'idle':

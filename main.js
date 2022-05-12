@@ -30,7 +30,7 @@ const shop = new Sprite({
 
 const player = new Fighter({
     position: {
-        x: 0,
+        x: 200,
         y: 0
     },
     velocity: {
@@ -91,7 +91,7 @@ const player = new Fighter({
 
 const enemy = new Fighter({
     position: {
-        x: 400,
+        x: 750,
         y: 100
     },
     velocity: {
@@ -104,7 +104,7 @@ const enemy = new Fighter({
         y: 0
     },
     imgSrc: './img/kenji/Idle.png',
-    frameGap: 10,
+    frameGap: 14,
     frameMax: 4,
     scale: 2.5,
     offset: {
@@ -261,48 +261,48 @@ animate();
 
 //事件监听
 window.addEventListener('keydown', (e) => {
-    switch (e.key) {
-        case 'd':
-            keys.d.pressed = true;
-            player.lastKey = 'd';
-            break
-        case 'a':
-            keys.a.pressed = true;
-            player.lastKey = 'a';
-            break
-        case 'w':
-            //防二段跳
-            if (player.position.y + player.height < canvas.height - 96) return
-            player.velocity.y = -10;
-            break
-        case ' ':
-            e.preventDefault();
-            player.attack();
-            break
+    e.preventDefault();
+    if (player.image !== player.sprites.death.image) {
+        switch (e.key) {
+            case 'd':
+                keys.d.pressed = true;
+                player.lastKey = 'd';
+                break
+            case 'a':
+                keys.a.pressed = true;
+                player.lastKey = 'a';
+                break
+            case 'w':
+                //防二段跳
+                if (player.position.y + player.height < canvas.height - 96) return
+                player.velocity.y = -10;
+                break
+            case ' ':
+                player.attack();
+                break
+        }
     }
 
     //敌方
-    switch (e.key) {
-        case 'ArrowLeft':
-            e.preventDefault();
-            keys.ArrowLeft.pressed = true;
-            enemy.lastKey = 'ArrowLeft';
-            break
-        case 'ArrowRight':
-            e.preventDefault();
-            keys.ArrowRight.pressed = true;
-            enemy.lastKey = 'ArrowRight';
-            break
-        case 'ArrowUp':
-            e.preventDefault();
-            if (enemy.position.y + enemy.height < canvas.height - 96) return
-            enemy.velocity.y = -10;
-            break
-        case ('ArrowDown'):
-            e.preventDefault();
-            enemy.attack();
-            break
+    if (enemy.image !== enemy.sprites.death.image) {
+        switch (e.key) {
+            case 'ArrowLeft':
+                keys.ArrowLeft.pressed = true;
+                enemy.lastKey = 'ArrowLeft';
+                break
+            case 'ArrowRight':
+                keys.ArrowRight.pressed = true;
+                enemy.lastKey = 'ArrowRight';
+                break
+            case 'ArrowUp':
+                if (enemy.position.y + enemy.height < canvas.height - 96) return
+                enemy.velocity.y = -10;
+                break
+            case 'ArrowDown':
+                enemy.attack();
+                break
 
+        }
     }
 })
 
@@ -310,11 +310,11 @@ window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'd':
             keys.d.pressed = false;
-            player.image = player.sprites.idle.image
+            // player.image = player.sprites.idle.image
             break
         case 'a':
             keys.a.pressed = false;
-            player.image = player.sprites.idle.image
+            // player.image = player.sprites.idle.image
             break
     }
 
@@ -322,16 +322,9 @@ window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'ArrowRight':
             keys.ArrowRight.pressed = false;
-            enemy.image = enemy.sprites.idle.image;
-            enemy.frameMax = enemy.sprites.idle.frameMax;
-            // enemy.image = enemy.sprites.idle.image;
-            // enemy.frameMax = enemy.sprites.idle.frameMax;
             break
         case 'ArrowLeft':
             keys.ArrowLeft.pressed = false;
-            enemy.image = enemy.sprites.idle.image;
-            // enemy.image = enemy.sprites.idle.image;
-            enemy.frameMax = enemy.sprites.idle.frameMax;
             break
     }
 })

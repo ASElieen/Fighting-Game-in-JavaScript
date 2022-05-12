@@ -2,6 +2,8 @@
 
 # 格斗游戏
 
+5.11重构了可复用部分
+
 ## 画布背景
 
 canvas画一个
@@ -494,14 +496,69 @@ update() {
 
 ## 人物
 
-### 人物站立动画
+人物的动画实现和商店差不多
 
-在之前绘制的canvas基础上引入png
+构造函数中的sprites是用来存放不同动作的图片路径和图片切割份数
 
+```javascript
+for (let sprite in sprites) {
+            sprites[sprite].image = new Image();
+            sprites[sprite].image.src = sprites[sprite].imgSrc;
+        }
+```
 
+举个例子，这里是站立
 
-### 人物移动动画
+```javascript
+case 'idle':
+                if (this.image !== this.sprites.idle.image) {
+                    this.image = this.sprites.idle.image;
+                    this.frameMax = this.sprites.idle.frameMax;
+                    this.frameCurrent = 0;
+                }
+```
 
-### 人物跳跃动画
+这里时实例中的站立
 
-### 人物攻击动画
+```javascript
+ sprites: {
+        idle: {
+            imgSrc: './img/kenji/Idle.png',
+            frameMax: 4
+        },
+```
+
+可以看到后面的其他动作的实现都和站立差不多，只是更改参数。然后把对应的Switch case传入对应的事件监听即可
+
+#### 重置frameCurrent
+
+```
+ this.frameCurrent = 0;
+```
+
+每个case都会带上这一行，是因为不重置frameCurrent的话在某些情况下会触发闪烁。
+
+![image-20220512091722838](C:\Users\ZeroX\AppData\Roaming\Typora\typora-user-images\image-20220512091722838.png)
+
+用站立切跳跃来举例，比如我在frameCurrent = 6的时候触发跳跃，此时已经切到了跳跃的图片素材。可是跳跃的frameMax = 2，根本不存在6。那么在切换过来的那一瞬间，jump对应的素材是空的。然后才会因为if回到jump1。
+
+## 新offset和hitbox重写
+
+刚开始的时候用offset来控制敌我的hitbox位置。但是在切割人物素材时，我们需要一个参数来控制drawImage()中的x和y,在这里又引入了offset改变图片位置来去除人物素材周围的空白区域。所以重写hitbox
+
+```javascript
+constructor(
+attackBox = { offset: {}, width: undefined, height: undefined }){
+this.attackBox = {
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            offset: attackBox.offset,
+            width: attackBox.width,
+            height: attackBox.height
+        };
+}
+```
+
+判定继续沿用之前的hitboxCollision(rec1,rec2)函数就可以了
