@@ -121,17 +121,30 @@ class Fighter extends Sprite {
         }
     }
 
-    attack() {
-        this.switchSprite('attack1')
+    attackRight() {
+        this.switchSprite('attack1Right')
+        this.isAttacking = true
+    }
+
+    attackLeft() {
+        this.switchSprite('attack1Left')
         this.isAttacking = true
     }
 
     takeHit() {
         this.hp -= 10
-
         if (this.hp <= 0) {
             this.switchSprite('death')
         } else this.switchSprite('takeHit')
+    }
+
+    //switchSprite的switch case代码复用段
+    switchSpriteCase(casename) {
+        if (this.image !== casename.image) {
+            this.image = casename.image;
+            this.frameMax = casename.frameMax;
+            this.frameCurrent = 0;
+        }
     }
 
     switchSprite(sprite) {
@@ -144,8 +157,8 @@ class Fighter extends Sprite {
 
         //出刀时不执行其他任何动作
         if (
-            this.image === this.sprites.attack1.image &&
-            this.frameCurrent < this.sprites.attack1.frameMax - 1
+            (this.image === this.sprites.attack1Left.image || this.image === this.sprites.attack1Right.image) &&
+            this.frameCurrent < this.sprites.attack1Left.frameMax - 1
         )
             return
 
@@ -158,58 +171,45 @@ class Fighter extends Sprite {
 
 
         switch (sprite) {
-            case 'idle':
-                if (this.image !== this.sprites.idle.image) {
-                    this.image = this.sprites.idle.image;
-                    this.frameMax = this.sprites.idle.frameMax;
-                    this.frameCurrent = 0;
-                }
+            case 'idleRight':
+                this.switchSpriteCase(this.sprites.idleRight);
                 break
-            case 'run':
-                if (this.image !== this.sprites.run.image) {
-                    this.image = this.sprites.run.image
-                    this.frameMax = this.sprites.run.frameMax
-                    this.frameCurrent = 0
-                }
+            case 'idleLeft':
+                this.switchSpriteCase(this.sprites.idleLeft);
                 break
-            case 'jump':
-                if (this.image !== this.sprites.jump.image) {
-                    this.image = this.sprites.jump.image
-                    this.frameMax = this.sprites.jump.frameMax
-                    this.frameCurrent = 0
-                }
+            case 'runLeft':
+                this.switchSpriteCase(this.sprites.runLeft);
+                break
+            case 'runRight':
+                this.switchSpriteCase(this.sprites.runRight);
+                break
+            case 'jumpLeft':
+                this.switchSpriteCase(this.sprites.jumpLeft);
+                break
+            case 'jumpRight':
+                this.switchSpriteCase(this.sprites.jumpRight);
                 break
 
-            case 'fall':
-                if (this.image !== this.sprites.fall.image) {
-                    this.image = this.sprites.fall.image
-                    this.frameMax = this.sprites.fall.frameMax
-                    this.frameCurrent = 0
-                }
+            case 'fallLeft':
+                this.switchSpriteCase(this.sprites.fallLeft);
+                break
+            case 'fallRight':
+                this.switchSpriteCase(this.sprites.fallRight);
                 break
 
-            case 'attack1':
-                if (this.image !== this.sprites.attack1.image) {
-                    this.image = this.sprites.attack1.image
-                    this.frameMax = this.sprites.attack1.frameMax
-                    this.frameCurrent = 0
-                }
+            case 'attack1Right':
+                this.switchSpriteCase(this.sprites.attack1Right);
+                break
+            case 'attack1Left':
+                this.switchSpriteCase(this.sprites.attack1Left);
                 break
 
             case 'takeHit':
-                if (this.image !== this.sprites.takeHit.image) {
-                    this.image = this.sprites.takeHit.image
-                    this.frameMax = this.sprites.takeHit.frameMax
-                    this.frameCurrent = 0
-                }
+                this.switchSpriteCase(this.sprites.takeHit);
                 break
 
             case 'death':
-                if (this.image !== this.sprites.death.image) {
-                    this.image = this.sprites.death.image
-                    this.frameMax = this.sprites.death.frameMax
-                    this.frameCurrent = 0
-                }
+                this.switchSpriteCase(this.sprites.death);
                 break
         }
     }
