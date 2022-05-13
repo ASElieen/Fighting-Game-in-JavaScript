@@ -348,11 +348,11 @@ class Sprite {
 
 #### 大小和位置
 
-![image-20220511110912619](C:\Users\ZeroX\Desktop\image-20220511110912619.png)
+![image-20220511111027643](https://user-images.githubusercontent.com/93816228/168195877-2c981f9c-a4cc-4f07-8125-0ee223ced8e1.png)
 
 可以看到 素材图片是由6帧（暂时就叫帧吧）组成，那么构成动画的思路很明显
 
-![image-20220511111122632](C:\Users\ZeroX\AppData\Roaming\Typora\typora-user-images\image-20220511111122632.png)
+![image-20220511111122632](https://user-images.githubusercontent.com/93816228/168195900-52f93090-c21f-4dd6-bf68-29539a727c7f.png)
 
 把图片分成六块 每隔一定的时间往前挪一块，挪到末尾后回到开头
 
@@ -407,7 +407,7 @@ draw() {
 
 #### 六等分和动画
 
-![image-20220511114338516](C:\Users\ZeroX\AppData\Roaming\Typora\typora-user-images\image-20220511114338516.png)
+![image-20220511114338516](https://user-images.githubusercontent.com/93816228/168195935-913cc9db-a387-4f46-b216-9c5cbc4d0bdc.png)
 
 这是w3c上的drawImage参数，那么实现六等分的核心就在于sx和swidth这两个参数。
 
@@ -541,7 +541,7 @@ case 'idle':
 
 每个case都会带上这一行，是因为不重置frameCurrent的话在某些情况下会触发闪烁。
 
-![image-20220512091722838](C:\Users\ZeroX\AppData\Roaming\Typora\typora-user-images\image-20220512091722838.png)
+![image-20220512091722838](https://user-images.githubusercontent.com/93816228/168195996-ddaf1112-0812-44eb-9319-511d722c70b5.png)
 
 用站立切跳跃来举例，比如我在frameCurrent = 6的时候触发跳跃，此时已经切到了跳跃的图片素材。可是跳跃的frameMax = 2，根本不存在6。那么在切换过来的那一瞬间，jump对应的素材是空的。然后才会因为if回到jump1。
 
