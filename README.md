@@ -1,7 +1,8 @@
 
-
 # 格斗游戏
-
+demo演示:
+[demo](https://aselieen.github.io/Fighting-Game-in-JavaScript/)   
+5.12抽出了所有可复用逻辑
 5.11重构了可复用部分
 
 ## 画布背景
