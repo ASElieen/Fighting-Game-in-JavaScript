@@ -1,5 +1,7 @@
 
 # 格斗游戏
+左边:AD左右移动 W跳跃 空格出刀
+右边:方向键左右移动 上跳跃 下出刀
 demo演示:
 [demo](https://aselieen.github.io/Fighting-Game-in-JavaScript/)   
 5.12抽出了所有可复用逻辑
