@@ -1,3 +1,4 @@
+import { Sprite, Fighter } from "./classes.js"
 export { background, shop, player, enemy }
 //--------------------背景------------------------
 const background = new Sprite({

@@ -1,3 +1,4 @@
+export { Sprite, Fighter }
 class Sprite {
     //offset修改放置xy坐标位置 即移动中心人像让人像靠近左上切图起始点
     constructor({ position, imgSrc, scale = 1, frameMax = 1, frameGap = 1, offset = { x: 0, y: 0 } }) {
